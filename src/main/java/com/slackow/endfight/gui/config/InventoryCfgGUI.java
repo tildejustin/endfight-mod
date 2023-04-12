@@ -3,19 +3,19 @@ package com.slackow.endfight.gui.config;
 import com.slackow.endfight.EndFightMod;
 import com.slackow.endfight.config.BigConfig;
 import com.slackow.endfight.util.Kit;
-import net.minecraft.class_481;
-import net.minecraft.client.MinecraftClient;
+
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.GuiLighting;
-import net.minecraft.client.resource.language.I18n;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+
+import net.minecraft.util.Language;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
+
+import static net.minecraft.client.gui.hud.InGameHud.itemRenderer;
 
 public class InventoryCfgGUI extends Screen {
     private final Screen from;
@@ -40,11 +40,11 @@ public class InventoryCfgGUI extends Screen {
     public void init() {
         buttons.add(new ButtonWidget(0, width / 2 - 100, height / 6 + 150, 100, 20, "Set Current"));
         buttons.add(new ButtonWidget(1, width / 2, height / 6 + 150, 100, 20, "Get Current"));
-        buttons.add(new ButtonWidget(2, width / 2 - 100, height / 6 + 174, 200, 20, I18n.translate("gui.done")));
+        buttons.add(new ButtonWidget(2, width / 2 - 100, height / 6 + 174, 200, 20, Language.getInstance().translate("gui.done")));
         super.init();
     }
 
-    protected static final Identifier INVENTORY_TEXTURE = new Identifier("textures/gui/container/inventory.png");
+    protected final int INVENTORY_TEXTURE = field_1229.textureManager.getTextureFromPath("textures/gui/container/inventory.png");
     protected int backgroundWidth = 176;
     protected int backgroundHeight = 166;
 
@@ -54,13 +54,13 @@ public class InventoryCfgGUI extends Screen {
         drawCenteredString(textRenderer, "Inventory", width / 2, height / 6 - 2, 0xFFFFFF);
         drawCenteredString(textRenderer, BigConfig.getSelectedConfig().getName(), width / 2, height / 6 + 10, 0xFFFFFF);
         super.render(mouseX, mouseY, tickDelta);
-        client.getTextureManager().bindTexture(INVENTORY_TEXTURE);
+        field_1229.textureManager.bindTexture(INVENTORY_TEXTURE);
         int var4 = (this.width - this.backgroundWidth) / 2;
         int var5 = (this.height / 3 + 200 - this.backgroundHeight) / 2;
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.drawTexture(var4, var5 - 50 + 80, 0, 80, this.backgroundWidth, this.backgroundHeight - 80);
         this.drawTexture(var4, var5 - 50 + 76, 0, 0, this.backgroundWidth, 4);
-        GuiLighting.enable();
+//        GuiLighting.enable();
         for (int i = 0; i < items.length; i++) {
 
             int x = width / 2 + (i % 9 - 4) * 18 - 8;

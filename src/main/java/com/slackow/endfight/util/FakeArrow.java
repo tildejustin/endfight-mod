@@ -8,18 +8,16 @@ package com.slackow.endfight.util;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
-import net.minecraft.block.Material;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EndCrystalEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.Projectile;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -27,8 +25,7 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-@SuppressWarnings("ALL")
-public class FakeArrow extends Entity implements Projectile {
+public class FakeArrow extends Entity {
     private final float upward;
     private int blockX = -1;
     private int blockY = -1;
@@ -234,11 +231,11 @@ public class FakeArrow extends Entity implements Projectile {
                     this.x -= this.velocityX / (double)var20 * 0.05000000074505806D;
                     this.y -= this.velocityY / (double)var20 * 0.05000000074505806D;
                     this.z -= this.velocityZ / (double)var20 * 0.05000000074505806D;
-                    this.playSound("random.bowhit", 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+                    this.world.playSound(this, "random.bowhit", 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
                     this.inGround = true;
                     this.shake = 7;
                     this.setCritical(false);
-                    if (this.block.getMaterial() != Material.AIR) {
+                    if (this.block.material != Material.AIR) {
                         this.block.method_416(this.world, this.blockX, this.blockY, this.blockZ, this);
                     }
                 }
@@ -246,7 +243,7 @@ public class FakeArrow extends Entity implements Projectile {
 
             if (this.isCritical()) {
                 for(var9 = 0; var9 < 4; ++var9) {
-                    this.world.method_3621("crit", this.x + this.velocityX * (double)var9 / 4.0D, this.y + this.velocityY * (double)var9 / 4.0D, this.z + this.velocityZ * (double)var9 / 4.0D, -this.velocityX, -this.velocityY + 0.2D, -this.velocityZ);
+                    this.world.spawnParticle("crit", this.x + this.velocityX * (double)var9 / 4.0D, this.y + this.velocityY * (double)var9 / 4.0D, this.z + this.velocityZ * (double)var9 / 4.0D, -this.velocityX, -this.velocityY + 0.2D, -this.velocityZ);
                 }
             }
 
@@ -278,7 +275,7 @@ public class FakeArrow extends Entity implements Projectile {
             if (this.isTouchingWater()) {
                 for(int var25 = 0; var25 < 4; ++var25) {
                     var26 = 0.25F;
-                    this.world.method_3621("bubble", this.x - this.velocityX * (double)var26, this.y - this.velocityY * (double)var26, this.z - this.velocityZ * (double)var26, this.velocityX, this.velocityY, this.velocityZ);
+                    this.world.spawnParticle("bubble", this.x - this.velocityX * (double)var26, this.y - this.velocityY * (double)var26, this.z - this.velocityZ * (double)var26, this.velocityX, this.velocityY, this.velocityZ);
                 }
 
                 var23 = 0.8F;
@@ -301,12 +298,12 @@ public class FakeArrow extends Entity implements Projectile {
         return hitCrystal;
     }
 
-    public void writeCustomDataToTag(CompoundTag tag) {
+    public void writeCustomDataToNbt(NbtCompound tag) {
         tag.putShort("xTile", (short)this.blockX);
         tag.putShort("yTile", (short)this.blockY);
         tag.putShort("zTile", (short)this.blockZ);
         tag.putShort("life", (short)this.life);
-        tag.putByte("inTile", (byte)Block.getIdByBlock(this.block));
+        tag.putByte("inTile", (byte)this.block.id);
         tag.putByte("inData", (byte)this.blockData);
         tag.putByte("shake", (byte)this.shake);
         tag.putByte("inGround", (byte)(this.inGround ? 1 : 0));
@@ -314,22 +311,22 @@ public class FakeArrow extends Entity implements Projectile {
         tag.putDouble("damage", this.damage);
     }
 
-    public void readCustomDataFromTag(CompoundTag tag) {
+    public void readCustomDataFromNbt(NbtCompound tag) {
         this.blockX = tag.getShort("xTile");
         this.blockY = tag.getShort("yTile");
         this.blockZ = tag.getShort("zTile");
         this.life = tag.getShort("life");
-        this.block = Block.getById(tag.getByte("inTile") & 255);
+        this.block = Block.BLOCKS[(tag.getByte("inTile") & 255)];
         this.blockData = tag.getByte("inData") & 255;
         this.shake = tag.getByte("shake") & 255;
         this.inGround = tag.getByte("inGround") == 1;
-        if (tag.contains("damage", 99)) {
+        if (tag.contains("damage")) {
             this.damage = tag.getDouble("damage");
         }
 
-        if (tag.contains("pickup", 99)) {
+        if (tag.contains("pickup")) {
             this.pickup = tag.getByte("pickup");
-        } else if (tag.contains("player", 99)) {
+        } else if (tag.contains("player")) {
             this.pickup = tag.getBoolean("player") ? 1 : 0;
         }
 
@@ -338,13 +335,15 @@ public class FakeArrow extends Entity implements Projectile {
     public void onPlayerCollision(PlayerEntity player) {
         if (!this.world.isClient && this.inGround && this.shake <= 0) {
             boolean var2 = this.pickup == 1 || this.pickup == 2 && player.abilities.creativeMode;
-            if (this.pickup == 1 && !player.inventory.insertStack(new ItemStack(Items.ARROW, 1))) {
+            if (this.pickup == 1 && !player.inventory.insertStack(new ItemStack(Item.ARROW, 1))) {
                 var2 = false;
             }
 
             if (var2) {
-                this.playSound("random.pop", 0.2F, ((this.random.nextFloat() - this.random.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-                player.sendPickup(this, 1);
+                // unsure if player is correct
+                this.world.playSound(this,"random.pop", 0.2F, ((this.random.nextFloat() - this.random.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                // sendpickup
+                player.method_3162(this, 1);
                 this.remove();
             }
 

@@ -145,8 +145,8 @@ public class BigConfig {
         if (selectedConfig < configs.size() && selectedConfig >= 0) {
             return configs.get(selectedConfig);
         }
-        throw new CrashException(CrashReport.create(null, "Send this error straight to Slackow#7890 on discord please(with everything below):\n" +
-                "" + selectedConfig + configs + "\n"));
+        throw new CrashException(new CrashReport("Send this error straight to Slackow#7890 on discord please(with everything below):\n" +
+                "" + selectedConfig + configs + "\n", null));
     }
 
     @Override

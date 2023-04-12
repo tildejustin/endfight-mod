@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class EndFightCommand extends AbstractCommand {
     public static void heal(PlayerEntity player) {
-        player.setHealth(20f);
+        player.field_3294 = 20f;
         player.extinguish();
         player.getHungerManager().add(20, 1);
         player.getHungerManager().add(1, -8); // -16

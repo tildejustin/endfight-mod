@@ -2,9 +2,8 @@ package com.slackow.endfight.mixin;
 
 import com.slackow.endfight.config.BigConfig;
 import com.slackow.endfight.util.FakeArrow;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.entity.EnderCrystalEntityRenderer;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.entity.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.BowItem;
@@ -22,8 +21,8 @@ public class RenderCrystalMixin {
     @Inject(method = "render(Lnet/minecraft/entity/EndCrystalEntity;DDDFF)V", at = @At("TAIL"))
     private void render(EndCrystalEntity d, double e, double f, double g, float h, float par6, CallbackInfo ci) {
         if (BigConfig.getSelectedConfig().arrowHelp) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            PlayerInventory inv = client.field_3805.inventory;
+            Minecraft client = Minecraft.getMinecraft();
+            PlayerInventory inv = client.playerEntity.inventory;
             ItemStack itemStack = inv.main[inv.selectedSlot];
             if (itemStack != null && itemStack.getItem() instanceof BowItem) {
 

@@ -6,8 +6,6 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MultiServerWorld;
 import net.minecraft.world.SaveHandler;
 import net.minecraft.world.level.LevelInfo;
-import net.minecraft.world.level.LevelProperties;
-import net.minecraft.world.level.ReadOnlyLevelProperties;
 
 public class EndFightWorld extends MultiServerWorld {
 

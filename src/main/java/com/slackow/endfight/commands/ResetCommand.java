@@ -6,7 +6,7 @@ import com.slackow.endfight.config.BigConfig;
 import com.slackow.endfight.config.Config;
 import com.slackow.endfight.gui.config.ConfigGUI;
 import com.slackow.endfight.util.Medium;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -81,7 +81,7 @@ public class ResetCommand extends EndFightCommand {
                     }
                 }
             }
-            File dim1 = new File(MinecraftClient.getInstance().runDirectory, "saves/" + server.getLevelName() + "/DIM1");
+            File dim1 = new File(Minecraft.getMinecraft().runDirectory, "saves/" + server.getLevelName() + "/DIM1");
             boolean endExists = dim1.exists();
             if (endExists) {
                 ServerWorld end = server.getWorld(1);

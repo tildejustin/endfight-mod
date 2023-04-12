@@ -7,15 +7,14 @@ import com.slackow.endfight.util.Island;
 import com.slackow.endfight.util.KeyBind;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Language;
 import net.minecraft.world.GameMode;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static net.minecraft.util.Formatting.*;
 
 // Options:
 // Death box visibility, (off, with hitboxes, always)
@@ -91,8 +90,8 @@ public class ConfigGUI extends Screen {
             buttons.add(new ButtonWidget(8, width / 2 + 5, height / 6 + 115, 150, 20, enderMan + enderManNames[obj.enderMan]));
         }
         buttons.add(new ButtonWidget(-1, width / 2 - 155, height / 6 - 2, 20, 20, "<"));
-        buttons.add(new ButtonWidget(-2, width / 2 + 135, height / 6 - 2, 20, 20, (advanced ? GRAY : "") + "..."));
-        buttons.add(new ButtonWidget(15, width / 2 - 100, height / 6 + 150, 200, 20, I18n.translate("gui.done")));
+        buttons.add(new ButtonWidget(-2, width / 2 + 135, height / 6 - 2, 20, 20, "..."));
+        buttons.add(new ButtonWidget(15, width / 2 - 100, height / 6 + 150, 200, 20, Language.getInstance().translate("gui.done")));
         super.init();
     }
 
@@ -116,13 +115,13 @@ public class ConfigGUI extends Screen {
                 button.message = buttonName(arrowHelp, obj.arrowHelp);
                 break;
             case 4:
-                client.openScreen(new InventoryCfgGUI(this, obj.inventory));
+                field_1229.openScreen(new InventoryCfgGUI(this, obj.inventory));
                 return;
             case 5:
-                client.openScreen(new ListGUI<KeyBind>(this, obj.keyBindings, -1,
+                field_1229.openScreen(new ListGUI<KeyBind>(this, obj.keyBindings, -1,
                         () -> new KeyBind("", Keyboard.KEY_ESCAPE, ""),
                         (gui, keybind) -> { //
-                            client.openScreen(new KeybindGUI(gui, keybind));
+                            field_1229.openScreen(new KeybindGUI(gui, keybind));
                         },
                         (data, selected) -> {
                             obj.keyBindings = data;
@@ -135,7 +134,7 @@ public class ConfigGUI extends Screen {
                 });
                 return;
             case 6:
-                client.openScreen(new ListGUI<>(this, obj.islands, obj.selectedIsland, () -> {
+                field_1229.openScreen(new ListGUI<>(this, obj.islands, obj.selectedIsland, () -> {
                     MinecraftServer server = MinecraftServer.getServer();
                     if (server.worlds.length < 3) {
                         server = null;
@@ -144,7 +143,7 @@ public class ConfigGUI extends Screen {
                     a.setName("");
                     return a;
                 }, (gui, obj) -> { //
-                    client.openScreen(new IslandGUI(gui, obj));
+                    field_1229.openScreen(new IslandGUI(gui, obj));
                 }, (data, selected) -> {
                     obj.islands = data;
                     obj.selectedIsland = selected;
@@ -180,12 +179,12 @@ public class ConfigGUI extends Screen {
                 button.message = buttonName(printDebugMessages, obj.dPrintDebugMessages);
                 break;
             case -1:
-                client.openScreen(new ListGUI<>(from,
+                field_1229.openScreen(new ListGUI<>(from,
                         BigConfig.getBigConfig().configs,
                         BigConfig.getBigConfig().selectedConfig,
                         Config::new,
                         (gui, obj) -> { //
-                            client.openScreen(new ConfigGUI(gui, obj, false));
+                            field_1229.openScreen(new ConfigGUI(gui, obj, false));
                         },
                         (list, selected) -> {
                             if (list.isEmpty()) {
@@ -199,11 +198,11 @@ public class ConfigGUI extends Screen {
                         }, "Profiles"));
                 return;
             case -2:
-                client.openScreen(new ConfigGUI(from, obj, !advanced));
+                field_1229.openScreen(new ConfigGUI(from, obj, !advanced));
                 return;
             case 15:
                 BigConfig.save();
-                client.openScreen(from);
+                field_1229.openScreen(from);
                 return;
         }
         BigConfig.save();
