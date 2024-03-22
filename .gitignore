@@ -20,11 +20,14 @@ bin/
 .classpath
 .project
 
-# fabric
-run/
-
 # macos
 *.DS_Store
 
-SpeedRunIGT*.jar
-makestuff
+# fabric
+run/
+
+# java
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr
