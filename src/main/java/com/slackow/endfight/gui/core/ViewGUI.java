@@ -3,9 +3,8 @@ package com.slackow.endfight.gui.core;
 import com.slackow.endfight.util.Renameable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.util.Language;
 
-import static net.minecraft.util.Formatting.RED;
 
 public class ViewGUI<T extends Renameable> extends Screen {
     final ListGUI<T> from;
@@ -24,10 +23,10 @@ public class ViewGUI<T extends Renameable> extends Screen {
         ButtonWidget edit = new ButtonWidget(1, width / 2 - 100, height / 6 + 100 - 30, 200, 20, "Edit");
         this.buttons.add(edit);
         isNew = obj.getName().isEmpty();
-        this.buttons.add(new ButtonWidget(2, width / 2 - 100, height / 6 + 100 - 10, 100, 20 , isNew ? "Name" : "Rename"));
-        ButtonWidget remove = new ButtonWidget(3, width / 2, height / 6 + 100 - 10, 100, 20, RED + "Remove");
+        this.buttons.add(new ButtonWidget(2, width / 2 - 100, height / 6 + 100 - 10, 100, 20, isNew ? "Name" : "Rename"));
+        ButtonWidget remove = new ButtonWidget(3, width / 2, height / 6 + 100 - 10, 100, 20, "§c" + "Remove");
         this.buttons.add(remove);
-        this.buttons.add(new ButtonWidget(4, width / 2 - 100, height / 6 + 100 + 10, 200, 20, isNew ? "Cancel" : I18n.translate("gui.done")));
+        this.buttons.add(new ButtonWidget(4, width / 2 - 100, height / 6 + 100 + 10, 200, 20, isNew ? "Cancel" : Language.getInstance().translate("gui.done")));
         edit.active = !isNew;
         remove.active = !isNew;
         super.init();
@@ -40,16 +39,16 @@ public class ViewGUI<T extends Renameable> extends Screen {
                 from.getEditObj().accept(this, obj);
                 break;
             case 2:
-                client.setScreen(new RenameGUI<>(this, obj));
+                field_1229.openScreen(new RenameGUI<>(this, obj));
                 break;
             case 3:
-                client.setScreen(new RemoveGUI<>(this));
+                field_1229.openScreen(new RemoveGUI<>(this));
                 break;
             case 4:
                 if (obj.getName().isEmpty()) {
                     remove();
                 }
-                client.setScreen(from);
+                field_1229.openScreen(from);
                 break;
         }
         super.buttonClicked(button);

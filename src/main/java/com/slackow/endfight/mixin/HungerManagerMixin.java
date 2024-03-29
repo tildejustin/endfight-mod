@@ -1,12 +1,9 @@
 package com.slackow.endfight.mixin;
 
-import com.slackow.endfight.EndFightMod;
 import com.slackow.endfight.config.BigConfig;
-import net.minecraft.entity.player.HungerManager;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.*;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HungerManager.class)

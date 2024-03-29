@@ -21,9 +21,8 @@
     "PlayerMixin",
     "RenderCrystalMixin",
     "RenderDragonMixin",
+    "ServerPlayerEntityMixin",
     "SettingsScreenMixin"
-  ],
-  "client": [
   ],
   "injectors": {
     "defaultRequire": 1

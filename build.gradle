@@ -28,6 +28,9 @@ dependencies {
     modImplementation libs.fabric.loader
     vineflowerDecompilerClasspath libs.vineflower
     modImplementation libs.speedrunigt
+    include(implementation libs.gson.get())
+    include(implementation "commons-io:commons-io:2.15.1")
+    include(implementation "org.apache.commons:commons-lang3:3.14.0")
 }
 
 processResources {

@@ -1,30 +1,31 @@
 package com.slackow.endfight.config;
 
-import com.slackow.endfight.util.Island;
-import com.slackow.endfight.util.KeyBind;
-import com.slackow.endfight.util.Kit;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
+import com.slackow.endfight.EndFightMod;
+import com.slackow.endfight.util.*;
+import net.minecraft.util.crash.*;
 import net.minecraft.world.GameMode;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.slackow.endfight.EndFightMod.getDataPath;
 
 public class BigConfig {
 
     private static BigConfig bigConfig;
+    public List<Config> configs;
+    public int selectedConfig;
 
-    private void saveThis() {
-        try {
-            Files.write(getDataPath(), Arrays.asList(toString().split("\n")));
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to save configs", e);
-        }
+
+    private BigConfig() {
+        configs = new ArrayList<>();
+        configs.add(new Config());
+        selectedConfig = 0;
+    }
+
+    private BigConfig(List<Config> configs, int selectedConfig) {
+        this.configs = configs;
+        this.selectedConfig = selectedConfig;
     }
 
     public static void save() {
@@ -33,13 +34,12 @@ public class BigConfig {
         }
     }
 
-
     public static BigConfig getBigConfig() {
         if (bigConfig != null) {
             return bigConfig;
         } else {
             try {
-                Path dataPath = getDataPath();
+                Path dataPath = EndFightMod.getDataPath();
                 int selected = 0;
                 List<Config> configs = new ArrayList<>();
                 for (String line : Files.lines(dataPath).collect(Collectors.toList())) {
@@ -145,8 +145,15 @@ public class BigConfig {
         if (selectedConfig < configs.size() && selectedConfig >= 0) {
             return configs.get(selectedConfig);
         }
-        throw new CrashException(CrashReport.create(null, "Send this error straight to Slackow#7890 on discord please(with everything below):\n" +
-                "" + selectedConfig + configs + "\n"));
+        throw new CrashException(new CrashReport("Send this error straight to Slackow#7890 on discord please(with everything below):\n" + selectedConfig + configs + "\n", new Throwable()));
+    }
+
+    private void saveThis() {
+        try {
+            Files.write(EndFightMod.getDataPath(), Arrays.asList(toString().split("\n")));
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to save configs", e);
+        }
     }
 
     @Override
@@ -175,19 +182,4 @@ public class BigConfig {
         }
         return sj.toString();
     }
-
-    private BigConfig() {
-        configs = new ArrayList<>();
-        configs.add(new Config());
-        selectedConfig = 0;
-    }
-
-    private BigConfig(List<Config> configs, int selectedConfig) {
-        this.configs = configs;
-        this.selectedConfig = selectedConfig;
-    }
-
-    public List<Config> configs;
-    public int selectedConfig;
-
 }

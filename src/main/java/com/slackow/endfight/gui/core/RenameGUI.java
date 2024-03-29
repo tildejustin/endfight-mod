@@ -1,15 +1,13 @@
 package com.slackow.endfight.gui.core;
 
 import com.slackow.endfight.util.Renameable;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.*;
 
 public class RenameGUI<T extends Renameable> extends Screen {
     private final ViewGUI<T> from;
-    private TextFieldWidget textField;
     private final T obj;
+    private TextFieldWidget textField;
     private String cached;
 
     public RenameGUI(ViewGUI<T> from, T obj) {
@@ -51,7 +49,7 @@ public class RenameGUI<T extends Renameable> extends Screen {
             obj.setName(cached.trim());
         }
         from.save();
-        client.setScreen(from);
+        field_1229.openScreen(from);
         super.buttonClicked(button);
     }
 

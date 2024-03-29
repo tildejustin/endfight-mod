@@ -3,15 +3,11 @@ package com.slackow.endfight.gui.config;
 import com.slackow.endfight.config.BigConfig;
 import com.slackow.endfight.gui.core.ViewGUI;
 import com.slackow.endfight.util.KeyBind;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.gui.widget.*;
+import net.minecraft.util.Language;
 import org.lwjgl.input.Keyboard;
-
-import static net.minecraft.util.Formatting.RESET;
-import static net.minecraft.util.Formatting.YELLOW;
 
 public class KeybindGUI extends Screen {
     private final ViewGUI<KeyBind> from;
@@ -38,7 +34,7 @@ public class KeybindGUI extends Screen {
         reset = new ButtonWidget(1, width / 2 + 20, height / 2, 55, 20, "Reset");
         reset.active = obj.code != Keyboard.KEY_ESCAPE;
         buttons.add(reset);
-        buttons.add(new ButtonWidget(2, width / 2 - 75 , height / 2 + 22, 150, 20, I18n.translate("gui.done")));
+        buttons.add(new ButtonWidget(2, width / 2 - 75, height / 2 + 22, 150, 20, Language.getInstance().translate("gui.done")));
         super.init();
     }
 
@@ -58,7 +54,7 @@ public class KeybindGUI extends Screen {
     protected void keyPressed(char character, int code) {
         textField.keyPressed(character, code);
         obj.message = textField.getText();
-        if (choosing){
+        if (choosing) {
             obj.code = code;
             choosing = false;
             updateKeyButton();
@@ -70,14 +66,14 @@ public class KeybindGUI extends Screen {
 
     private void updateKeyButton() {
         String key = (obj.code == Keyboard.KEY_ESCAPE ? "None" : Keyboard.getKeyName(obj.code));
-        keyButton.message = choosing ? "> " + YELLOW + key + RESET + " <" : key;
+        keyButton.message = choosing ? "> " + "§e" + key + "§r" + " <" : key;
     }
 
     @Override
     protected void buttonClicked(ButtonWidget button) {
         choosing = button.id == 0;
         if (button.id == 2) {
-            MinecraftClient.getInstance().setScreen(from);
+            Minecraft.getMinecraft().openScreen(from);
             return;
         } else if (button.id == 1) {
             obj.code = Keyboard.KEY_ESCAPE;

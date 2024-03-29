@@ -3,23 +3,23 @@ package com.slackow.endfight.gui.core;
 import com.slackow.endfight.util.Renameable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.util.Language;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
 
 public class ListGUI<T extends Renameable> extends Screen {
+    final String title;
     private final List<T> data;
     private final Supplier<T> getNewItem;
     private final Screen from;
     private final BiConsumer<ViewGUI<T>, T> editObj;
-    private int page = 0;
-    int selected;
     private final BiConsumer<List<T>, Integer> save;
-    final String title;
+    int selected;
+    private int page = 0;
     private int y;
+    private int lastTick = 0;
+    private int tick = 0;
 
     public ListGUI(Screen from, List<T> data, int selected, Supplier<T> getNew, BiConsumer<ViewGUI<T>, T> editObj, BiConsumer<List<T>, Integer> save, String title) {
         this.from = from;
@@ -30,6 +30,7 @@ public class ListGUI<T extends Renameable> extends Screen {
         this.save = save;
         this.title = title;
     }
+
     @SuppressWarnings("unchecked")
     public void init() {
         this.buttons.clear();
@@ -52,7 +53,7 @@ public class ListGUI<T extends Renameable> extends Screen {
         ButtonWidget right = new ButtonWidget(7, width / 2 + 12, homeRow, 20, 20, ">");
         right.active = (data.size() - 1) / 5 > page;
         buttons.add(right);
-        buttons.add(new ButtonWidget(8, width / 2 - 100, height / 6 + 150, 200, 20, I18n.translate("gui.done")));
+        buttons.add(new ButtonWidget(8, width / 2 - 100, height / 6 + 150, 200, 20, Language.getInstance().translate("gui.done")));
     }
 
     @Override
@@ -61,8 +62,6 @@ public class ListGUI<T extends Renameable> extends Screen {
         drawCenteredString(textRenderer, title, width / 2, y, 0xFFFFFF);
         super.render(mouseX, mouseY, tickDelta);
     }
-
-    private int lastTick = 0;
 
     @Override
     protected void buttonClicked(ButtonWidget button) {
@@ -73,7 +72,7 @@ public class ListGUI<T extends Renameable> extends Screen {
         if (button.id >= 0 && button.id < 5) {
             int index = button.id + page * 5;
             if (!isSelectable() || index == selected) {
-                client.setScreen(new ViewGUI<>(this, data.get(index)));
+                field_1229.openScreen(new ViewGUI<>(this, data.get(index)));
             } else {
                 selected = index;
                 reinit();
@@ -92,11 +91,11 @@ public class ListGUI<T extends Renameable> extends Screen {
                 if (isSelectable()) {
                     selected = data.size() - 1;
                 }
-                client.setScreen(new ViewGUI<>(this, obj));
+                field_1229.openScreen(new ViewGUI<>(this, obj));
             }
         } else if (button.id == 8) {
             save();
-            client.setScreen(from);
+            field_1229.openScreen(from);
         }
         super.buttonClicked(button);
     }
@@ -104,10 +103,8 @@ public class ListGUI<T extends Renameable> extends Screen {
     private void reinit() {
         ListGUI<T> screen = new ListGUI<>(from, data, selected, getNewItem, editObj, save, title);
         screen.page = page;
-        client.setScreen(screen);
+        field_1229.openScreen(screen);
     }
-
-    private int tick = 0;
 
     @Override
     public void tick() {

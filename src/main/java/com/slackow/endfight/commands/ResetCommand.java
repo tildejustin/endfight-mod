@@ -1,40 +1,25 @@
 package com.slackow.endfight.commands;
 
-import com.redlimerl.speedrunigt.timer.InGameTimer;
-import com.redlimerl.speedrunigt.timer.TimerStatus;
-import com.slackow.endfight.EndFightCommand;
-import com.slackow.endfight.EndFightMod;
-import com.slackow.endfight.config.BigConfig;
-import com.slackow.endfight.config.Config;
+import com.redlimerl.speedrunigt.timer.*;
+import com.slackow.endfight.*;
+import com.slackow.endfight.config.*;
 import com.slackow.endfight.gui.config.ConfigGUI;
+import com.slackow.endfight.speedrunigt.EndFightCategory;
 import com.slackow.endfight.util.Medium;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.CommandSource;
+import net.minecraft.client.Minecraft;
+import net.minecraft.command.*;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ServerWorldManager;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
+import net.minecraft.entity.player.*;
+import net.minecraft.server.*;
+import net.minecraft.server.world.*;
 import net.minecraft.world.GameMode;
-import net.minecraft.world.level.LevelInfo;
-import net.minecraft.world.level.LevelProperties;
+import net.minecraft.world.level.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.slackow.endfight.speedrunigt.EndFightCategory.END_FIGHT_CATEGORY;
-import static net.minecraft.util.Formatting.*;
+import java.io.*;
+import java.util.*;
+import java.util.stream.*;
 
 public class ResetCommand extends EndFightCommand {
     @Override
@@ -61,7 +46,7 @@ public class ResetCommand extends EndFightCommand {
     public void execute(CommandSource source, String[] args) throws CommandException {
         if (args.length > 0 && "options".equals(args[0])) {
             Medium.commandMap.forEach(command ->
-                    source.sendMessage(new LiteralText(RED + command.getUsageTranslationKey(source))));
+                    source.method_3331("§c" + command.getUsageTranslationKey(source)));
             return;
         }
         boolean twice = args.length == 0 || !args[0].contains("o");
@@ -77,14 +62,13 @@ public class ResetCommand extends EndFightCommand {
                         // set creative mode
                         p.method_3170(GameMode.CREATIVE);
                         if (!twice) {
-                            p.teleportToDimension(1);
+                            this.teleportToDimension((ServerPlayerEntity) p, 1);
                         }
-                        p.teleportToDimension(0);
-
+                        this.teleportToDimension((ServerPlayerEntity) p, 0);
                     }
                 }
             }
-            File dim1 = new File(MinecraftClient.getInstance().runDirectory, "saves/" + server.getLevelName() + "/DIM1");
+            File dim1 = new File(Minecraft.getMinecraft().runDirectory, "saves/" + server.getLevelName() + "/DIM1");
             boolean endExists = dim1.exists();
             if (endExists) {
                 ServerWorld end = server.getWorld(1);
@@ -99,10 +83,10 @@ public class ResetCommand extends EndFightCommand {
                     e.printStackTrace();
                 }
                 if (dim1.exists() && !FileUtils.deleteQuietly(dim1)) {
-                    player.sendMessage(new LiteralText(RED + "Failed to remove End Dimension :("));
+                    player.method_3331("§c" + "Failed to remove End Dimension :(");
                 }
             }
-            if (twice || !endExists){
+            if (twice || !endExists) {
                 ServerWorld overWorld = server.worlds[0];
                 LevelProperties oldInfo = overWorld.getLevelProperties();
                 LevelInfo levelInfo = new LevelInfo(oldInfo.getSeed(),
@@ -121,58 +105,60 @@ public class ResetCommand extends EndFightCommand {
                 }
 
 
-
                 ServerWorld newEnd = new EndFightWorld(seed, server, overWorld.getSaveHandler(), server.getLevelName(), 1, levelInfo, overWorld, server.profiler);
                 // copy difficulty
-                newEnd.field_7173 = overWorld.field_7173;
+                newEnd.difficulty = overWorld.difficulty;
 
                 server.worlds = ArrayUtils.add(server.worlds, newEnd);
                 server.field_3858 = ArrayUtils.add(server.field_3858, new long[100]);
                 newEnd.addListener(new ServerWorldManager(server, newEnd));
                 heal(player);
-                player.clearStatusEffects();
+                // method_2643 -> clearStatusEffects
+                player.method_2643();
                 if (cfg.dGodPlayer) {
-                    player.addStatusEffect(new StatusEffectInstance(11, 100000, 255, true));
+                    player.method_2654(new StatusEffectInstance(11, 100000, 255));
                 }
                 // set Gamemode
                 player.method_3170(cfg.gamemode);
                 EndFightMod.giveInventory(player, cfg.inventory);
-                player.teleportToDimension(1);
+                // method_3197 -> teleportToDimension
+                this.teleportToDimension((ServerPlayerEntity) player, 1);
 
                 if (cfg.showSettings) {
-                    Formatting[] three = {RED, YELLOW, GREEN};
-                    player.sendMessage(txt(""));
-                    player.sendMessage(txt("Selected Profile: " + YELLOW + "'" + cfg.getName() + YELLOW + "'"));
-                    player.sendMessage(txt("Island Type: " + three[Math.max(0, -cfg.selectedIsland)] + "[" + (cfg.selectedIslandName()) + "]"));
-                    player.sendMessage(txt("Endermen: " + three[cfg.enderMan] + "[" + ConfigGUI.enderManNames[cfg.enderMan] + "]"));
+                    String[] three = {"§c", "§e", "§a"};
+                    player.method_3331("");
+                    player.method_3331("Selected Profile: " + "§e" + "'" + cfg.getName() + "§e" + "'");
+                    player.method_3331("Island Type: " + three[Math.max(0, -cfg.selectedIsland)] + "[" + (cfg.selectedIslandName()) + "]");
+                    player.method_3331("Endermen: " + three[cfg.enderMan] + "[" + ConfigGUI.enderManNames[cfg.enderMan] + "]");
                     if (cfg.dGodPlayer) {
-                        player.sendMessage(txt(RED + "You are in god mode"));
+                        player.method_3331("§c" + "You are in god mode");
                     }
                     if (cfg.dGodDragon) {
-                        player.sendMessage(txt(RED + "The dragon is in god mode"));
+                        player.method_3331("§c" + "The dragon is in god mode");
                     }
                     if (cfg.dGodCrystals) {
-                        player.sendMessage(txt(RED + "The crystals are in god mode"));
+                        player.method_3331("§c" + "The crystals are in god mode");
                     }
                 }
 
 
-                player.sendMessage(new LiteralText("Sent to End"));
+                player.method_3331("Sent to End");
                 EndFightMod.time = System.currentTimeMillis();
                 if (EndFightMod.SRIGT_LOADED) {
-                    if (InGameTimer.getInstance().getCategory() == END_FIGHT_CATEGORY) {
+                    if (InGameTimer.getInstance().getCategory() == EndFightCategory.END_FIGHT_CATEGORY) {
                         InGameTimer.reset();
-                        InGameTimer.getInstance().setCategory(END_FIGHT_CATEGORY, false);
+                        InGameTimer.getInstance().setCategory(EndFightCategory.END_FIGHT_CATEGORY, false);
                         InGameTimer.getInstance().setStatus(TimerStatus.RUNNING);
                         InGameTimer.getInstance().setStartTime(EndFightMod.time);
                     }
                 }
             }
-
         }
     }
 
-    private static LiteralText txt(String s) {
-        return new LiteralText(s);
+    private void teleportToDimension(ServerPlayerEntity player, int dimension) {
+        Minecraft minecraft = Minecraft.getMinecraft();
+        PlayerManager manager = minecraft.getServer().getPlayerManager();
+        manager.teleportToDimension(player, dimension);
     }
 }

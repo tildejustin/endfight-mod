@@ -1,22 +1,18 @@
 package com.slackow.endfight.mixin;
 
 import com.slackow.endfight.config.BigConfig;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.World;
-import org.objectweb.asm.Opcodes;
+import net.minecraft.entity.mob.*;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HostileEntity.class)
 public class HostileEntityMixin {
-
-    @Redirect(method = "canSpawn", at = @At(target = "Lnet/minecraft/world/World;field_7173:Lnet/minecraft/world/Difficulty;", value = "FIELD", opcode = Opcodes.GETFIELD))
-    public Difficulty a(World instance) {
-        if (BigConfig.getSelectedConfig().enderMan == 0) {
-            return Difficulty.PEACEFUL;
+    @SuppressWarnings("ConstantValue")
+    @Inject(method = "canSpawn", at = @At("HEAD"), cancellable = true)
+    public void a(CallbackInfoReturnable<Boolean> cir) {
+        if (BigConfig.getSelectedConfig().enderMan == 0 && ((Object) this) instanceof EndermanEntity) {
+            cir.setReturnValue(false);
         }
-        return instance.field_7173;
     }
 }

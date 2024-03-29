@@ -1,13 +1,9 @@
 package com.slackow.endfight.config;
 
-import com.slackow.endfight.util.Island;
-import com.slackow.endfight.util.KeyBind;
-import com.slackow.endfight.util.Kit;
-import com.slackow.endfight.util.Renameable;
+import com.slackow.endfight.util.*;
 import net.minecraft.world.GameMode;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.slackow.endfight.gui.config.ConfigGUI.islandNames;
 
@@ -54,13 +50,13 @@ public class Config implements Renameable {
     }
 
     @Override
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Kit getInv() {

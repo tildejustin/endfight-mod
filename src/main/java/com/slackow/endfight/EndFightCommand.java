@@ -1,13 +1,12 @@
 package com.slackow.endfight;
 
-import net.minecraft.command.AbstractCommand;
-import net.minecraft.command.CommandSource;
+import net.minecraft.command.*;
 import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class EndFightCommand extends AbstractCommand {
     public static void heal(PlayerEntity player) {
-        player.setHealth(20f);
+        player.method_2668(20);
         player.extinguish();
         player.getHungerManager().add(20, 1);
         player.getHungerManager().add(1, -8); // -16
@@ -17,11 +16,6 @@ public abstract class EndFightCommand extends AbstractCommand {
     @Override
     public boolean isAccessible(CommandSource source) {
         return true;
-    }
-
-    @Override
-    public int getPermissionLevel() {
-        return 0;
     }
 
     @Override

@@ -2,10 +2,9 @@ package com.slackow.endfight.gui.config;
 
 import com.slackow.endfight.util.Island;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.gui.widget.*;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Language;
 
 public class IslandGUI extends Screen {
     private final Screen from;
@@ -22,8 +21,8 @@ public class IslandGUI extends Screen {
     public void init() {
         textField = new TextFieldWidget(textRenderer, width / 2 - 73, height / 2 - 22, 146, 20);
         textField.setText(obj.getSeed() + "");
-        buttons.add(new ButtonWidget(1, width / 2 - 75 , height / 2, 150, 20, "Copy Current"));
-        buttons.add(new ButtonWidget(2, width / 2 - 75 , height / 2 + 22, 150, 20, I18n.translate("gui.done")));
+        buttons.add(new ButtonWidget(1, width / 2 - 75, height / 2, 150, 20, "Copy Current"));
+        buttons.add(new ButtonWidget(2, width / 2 - 75, height / 2 + 22, 150, 20, Language.getInstance().translate("gui.done")));
         super.init();
     }
 
@@ -64,7 +63,7 @@ public class IslandGUI extends Screen {
                 seed = textField.getText().hashCode();
             }
             obj.setSeed(seed);
-            client.setScreen(from);
+            field_1229.openScreen(from);
         }
         super.buttonClicked(button);
     }

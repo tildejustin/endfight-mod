@@ -1,39 +1,51 @@
 package com.slackow.endfight.mixin;
 
-import com.slackow.endfight.EndFightCommand;
-import com.slackow.endfight.EndFightMod;
+import com.slackow.endfight.*;
 import com.slackow.endfight.commands.ResetCommand;
 import com.slackow.endfight.config.BigConfig;
 import com.slackow.endfight.util.Medium;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.EndCrystalEntity;
-import net.minecraft.entity.Entity;
+import net.minecraft.command.*;
+import net.minecraft.entity.*;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.CommandRegistry;
-import net.minecraft.text.LiteralText;
+import net.minecraft.server.command.*;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.minecraft.util.Formatting.RED;
-import static net.minecraft.util.math.MathHelper.clamp;
 
 @Mixin(CommandManager.class)
 public abstract class CommandManagerMixin extends CommandRegistry {
+    @Unique
+    private static void dragonHealth(CommandSource source, String[] args) {
+        Optional<EnderDragonEntity> dragon = getDragon(((PlayerEntity) source).world);
+        if (dragon.isPresent() && args.length > 0) {
+            try {
+                dragon.get().method_2668((int) MathHelper.clamp(Float.parseFloat(args[0]), 0, 200));
+            } catch (NumberFormatException e) {
+                source.method_3331("§c" + "Not a valid health");
+            }
+        }
+        source.method_3331(dragon.map(entityDragon -> "Dragon Health is: " + entityDragon.method_2600()).orElse("§c" + "No Dragon Found"));
+    }
 
-    @Inject(method = "<init>", at = @At("TAIL"))
+    @Unique
+    private static Optional<EnderDragonEntity> getDragon(World world) {
+        for (Object loadedEntity : world.getLoadedEntities()) {
+            if (loadedEntity instanceof EnderDragonEntity) {
+                return Optional.of((EnderDragonEntity) loadedEntity);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/command/AbstractCommand;setCommandProvider(Lnet/minecraft/command/CommandProvider;)V"))
     public void epicCommands(CallbackInfo ci) {
         // god
         registerCommand(new EndFightCommand() {
@@ -50,17 +62,17 @@ public abstract class CommandManagerMixin extends CommandRegistry {
             @Override
             public void execute(CommandSource source, String[] args) {
                 if (source instanceof PlayerEntity) {
-                    if (args.length <= 0) {
+                    if (args.length == 0) {
                         boolean god = BigConfig.getSelectedConfig().dGodPlayer ^= true;
-                        source.sendMessage(new LiteralText((god) ? "God Mode Enabled" :
-                                "God Mode Disabled"));
+                        source.method_3331((god) ? "God Mode Enabled" :
+                                "God Mode Disabled");
                         PlayerEntity player = (PlayerEntity) source;
-                        player.setHealth(20f);
+                        player.method_2668(20);
                         player.extinguish();
                         if (god) {
-                            player.addStatusEffect(new StatusEffectInstance(11, 100000, 255, true));
+                            player.method_2654(new StatusEffectInstance(11, 100000, 255));
                         } else {
-                            player.clearStatusEffects();
+                            player.method_2643();
                         }
                         player.getHungerManager().add(20, 1);
                         player.getHungerManager().add(1, -8); // -16
@@ -68,22 +80,22 @@ public abstract class CommandManagerMixin extends CommandRegistry {
                         switch (args[0]) {
                             case "crystal": {
                                 boolean god = BigConfig.getSelectedConfig().dGodCrystals ^= true;
-                                source.sendMessage(new LiteralText((god) ? "Crystal God Mode Enabled" :
-                                        "Crystal God Mode Disabled"));
+                                source.method_3331((god) ? "Crystal God Mode Enabled" :
+                                        "Crystal God Mode Disabled");
                                 break;
                             }
                             case "dragon": {
                                 boolean god = BigConfig.getSelectedConfig().dGodDragon ^= true;
                                 if (god) {
-                                    getDragon(source.getWorld()).ifPresent(dragon ->
-                                            dragon.setHealth(dragon.getMaxHealth()));
+                                    getDragon(((PlayerEntity) source).world).ifPresent(dragon ->
+                                            dragon.method_2668(dragon.method_2599()));
                                 }
-                                source.sendMessage(new LiteralText((god) ? "Dragon God Mode Enabled" :
-                                        "Dragon God Mode Disabled"));
+                                source.method_3331((god) ? "Dragon God Mode Enabled" :
+                                        "Dragon God Mode Disabled");
                                 break;
                             }
                             default: {
-                                source.sendMessage(new LiteralText("Unrecognized Subcommand"));
+                                source.method_3331("Unrecognized Subcommand");
                                 return;
                             }
                         }
@@ -124,7 +136,7 @@ public abstract class CommandManagerMixin extends CommandRegistry {
                 if (source instanceof PlayerEntity) {
                     PlayerEntity player = (PlayerEntity) source;
                     heal(player);
-                    player.sendMessage(new LiteralText("Healed"));
+                    player.method_3331("Healed");
                 }
             }
         });
@@ -152,9 +164,9 @@ public abstract class CommandManagerMixin extends CommandRegistry {
                     }
                 }
                 if (count <= 0) {
-                    source.sendMessage(new LiteralText(RED + "No End Crystals Found"));
+                    source.method_3331("§c" + "No End Crystals Found");
                 } else {
-                    source.sendMessage(new LiteralText("Killed " + count + " End Crystals"));
+                    source.method_3331("Killed " + count + " End Crystals");
                 }
             }
         });
@@ -172,12 +184,12 @@ public abstract class CommandManagerMixin extends CommandRegistry {
 
             @Override
             public void execute(CommandSource source, String[] args) {
-                Optional<EnderDragonEntity> dragon = getDragon(source.getWorld());
+                Optional<EnderDragonEntity> dragon = getDragon(((PlayerEntity) source).world);
                 if (dragon.isPresent()) {
                     dragon.get().remove();
-                    source.sendMessage(new LiteralText("Killed dragon"));
-                } else  {
-                    source.sendMessage(new LiteralText(RED + "No dragon found"));
+                    source.method_3331("Killed dragon");
+                } else {
+                    source.method_3331("§c" + "No dragon found");
                 }
             }
         });
@@ -197,7 +209,7 @@ public abstract class CommandManagerMixin extends CommandRegistry {
             public void execute(CommandSource source, String[] args) throws CommandException {
                 if (source instanceof PlayerEntity) {
                     EndFightMod.setInventory((PlayerEntity) source, BigConfig.getSelectedConfig().inventory);
-                    source.sendMessage(new LiteralText("Saved Inventory"));
+                    source.method_3331("Saved Inventory");
                 }
             }
         });
@@ -270,12 +282,12 @@ public abstract class CommandManagerMixin extends CommandRegistry {
 
             @Override
             public void execute(CommandSource source, String[] args) {
-                getDragon(source.getWorld()).ifPresent(dragon -> {
+                getDragon(((PlayerEntity) source).world).ifPresent(dragon -> {
                     dragon.field_3742 = dragon.x;
                     dragon.field_3751 = dragon.y + 1;
                     dragon.field_3752 = dragon.z;
                 });
-                source.sendMessage(new LiteralText("Rolled"));
+                source.method_3331("Rolled");
             }
         });
         // goodcharge
@@ -293,7 +305,7 @@ public abstract class CommandManagerMixin extends CommandRegistry {
             @Override
             public void execute(CommandSource source, String[] args) throws CommandException {
                 if (source instanceof PlayerEntity) {
-                    Optional<EnderDragonEntity> dragon = getDragon(source.getWorld());
+                    Optional<EnderDragonEntity> dragon = getDragon(((PlayerEntity) source).world);
                     if (dragon.isPresent()) {
                         int dist = 75;
                         int height = 24;
@@ -321,50 +333,30 @@ public abstract class CommandManagerMixin extends CommandRegistry {
                         entityDragon.setForwardSpeed(0);
                         chargeCommand(source);
                     } else {
-                        source.sendMessage(new LiteralText(RED + "No Dragon Found"));
+                        source.method_3331("§c" + "No Dragon Found");
                     }
                 }
             }
         });
-        //noinspection unchecked
+        // noinspection unchecked
         Medium.commandMap = (List<EndFightCommand>) getCommandMap().values().stream()
                 .filter(cmd -> cmd instanceof EndFightCommand)
                 .sorted()
                 .collect(Collectors.toList());
     }
 
+    @Unique
     private void chargeCommand(CommandSource source) {
-
         if (source instanceof PlayerEntity) {
-            Optional<EnderDragonEntity> dragon = getDragon(source.getWorld());
+            Optional<EnderDragonEntity> dragon = getDragon(((PlayerEntity) source).world);
             if (dragon.isPresent()) {
                 EnderDragonEntity entityDragon = dragon.get();
                 ((EnderDragonAccessor) entityDragon).setTarget((Entity) source);
 
-                source.sendMessage(new LiteralText("Forced Dragon Charge"));
+                source.method_3331("Forced Dragon Charge");
             } else {
-                source.sendMessage(new LiteralText(RED + "No Dragon Found"));
+                source.method_3331("§c" + "No Dragon Found");
             }
         }
-    }
-
-    private static void dragonHealth(CommandSource source, String[] args) {
-        Optional<EnderDragonEntity> dragon = getDragon(source.getWorld());
-        if (dragon.isPresent() && args.length > 0) {
-            try {
-                dragon.get().setHealth(clamp(Float.parseFloat(args[0]), 0, 200));
-            } catch (NumberFormatException e) {
-                source.sendMessage(new LiteralText(RED + "Not a valid health"));
-            }
-        }
-        source.sendMessage(new LiteralText(dragon.map(entityDragon -> "Dragon Health is: " + entityDragon.getHealth()).orElseGet(() -> RED + "No Dragon Found")));
-    }
-    private static Optional<EnderDragonEntity> getDragon(World world) {
-        for (Object loadedEntity : world.getLoadedEntities()) {
-            if (loadedEntity instanceof EnderDragonEntity) {
-                return Optional.of((EnderDragonEntity) loadedEntity);
-            }
-        }
-        return Optional.empty();
     }
 }

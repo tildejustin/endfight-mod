@@ -7,7 +7,6 @@ public class EndFightCategory implements SpeedRunIGTApi {
     public static final RunCategory END_FIGHT_CATEGORY =
             new RunCategory("end_fight", "https://github.com/Slackow/EndFightMod---Fabric", "End Fight");
 
-
     @Override
     public RunCategory registerCategory() {
         return END_FIGHT_CATEGORY;

@@ -1,30 +1,11 @@
 package com.slackow.endfight.util;
 
-public class Island implements Renameable{
+public class Island implements Renameable {
     private String name;
     private long seed;
 
     public Island(long seed) {
         this.seed = seed;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public long getSeed() {
-        return seed;
-    }
-
-    @Override
-    public String toString() {
-        return getSeed() + ":" + getName();
     }
 
     public static Island valueOf(String s) {
@@ -35,7 +16,26 @@ public class Island implements Renameable{
         return island;
     }
 
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public long getSeed() {
+        return seed;
+    }
+
     public void setSeed(long seed) {
         this.seed = seed;
+    }
+
+    @Override
+    public String toString() {
+        return getSeed() + ":" + getName();
     }
 }

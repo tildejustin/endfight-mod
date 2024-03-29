@@ -2,18 +2,14 @@ package com.slackow.endfight.util;
 
 import com.redlimerl.speedrunigt.timer.InGameTimer;
 import com.slackow.endfight.EndFightCommand;
-import com.slackow.endfight.EndFightMod;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.WorldRenderer;
+import com.slackow.endfight.speedrunigt.EndFightCategory;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.entity.player.ControllablePlayerEntity;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Box;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
-
-import static com.slackow.endfight.speedrunigt.EndFightCategory.END_FIGHT_CATEGORY;
 
 /**
  * A Hacky way of transferring data between client and server, don't depend on anything useful actually being here
@@ -36,7 +32,7 @@ public class Medium {
         GL11.glDisable(2896);
         GL11.glDisable(2884);
         GL11.glDisable(3042);
-        WorldRenderer.method_6886(box, color);
+        Medium.renderBox(box, color);
         GL11.glEnable(3553);
         GL11.glEnable(2896);
         GL11.glEnable(2884);
@@ -44,13 +40,53 @@ public class Medium {
         GL11.glDepthMask(true);
     }
 
+    public static void renderBox(Box box, int color) {
+        Tessellator var2 = Tessellator.INSTANCE;
+        var2.begin(3);
+        if (color != -1) {
+            var2.color(color);
+        }
+
+        var2.vertex(box.minX, box.minY, box.minZ);
+        var2.vertex(box.maxX, box.minY, box.minZ);
+        var2.vertex(box.maxX, box.minY, box.maxZ);
+        var2.vertex(box.minX, box.minY, box.maxZ);
+        var2.vertex(box.minX, box.minY, box.minZ);
+        var2.end();
+        var2.begin(3);
+        if (color != -1) {
+            var2.color(color);
+        }
+
+        var2.vertex(box.minX, box.maxY, box.minZ);
+        var2.vertex(box.maxX, box.maxY, box.minZ);
+        var2.vertex(box.maxX, box.maxY, box.maxZ);
+        var2.vertex(box.minX, box.maxY, box.maxZ);
+        var2.vertex(box.minX, box.maxY, box.minZ);
+        var2.end();
+        var2.begin(1);
+        if (color != -1) {
+            var2.color(color);
+        }
+
+        var2.vertex(box.minX, box.minY, box.minZ);
+        var2.vertex(box.minX, box.maxY, box.minZ);
+        var2.vertex(box.maxX, box.minY, box.minZ);
+        var2.vertex(box.maxX, box.maxY, box.minZ);
+        var2.vertex(box.maxX, box.minY, box.maxZ);
+        var2.vertex(box.maxX, box.maxY, box.maxZ);
+        var2.vertex(box.minX, box.minY, box.maxZ);
+        var2.vertex(box.minX, box.maxY, box.maxZ);
+        var2.end();
+    }
+
 
     /**
-     * I Need to make one of these methods anytime I use SRIGT classes inside a mixin, or you et an error. :/
+     * I Need to make one of these methods anytime I use SRIGT classes inside a mixin, or you get an error. :/
      */
     public static void completeTimerIfEndFight() {
         InGameTimer timer = InGameTimer.getInstance();
-        if (timer.getCategory() == END_FIGHT_CATEGORY && timer.isPlaying()) {
+        if (timer.getCategory() == EndFightCategory.END_FIGHT_CATEGORY && timer.isPlaying()) {
             InGameTimer.complete();
         }
     }
@@ -58,16 +94,16 @@ public class Medium {
 
     public static void onGameJoinIGT() {
         InGameTimer timer = InGameTimer.getInstance();
-        ControllablePlayerEntity player = MinecraftClient.getInstance().field_3805;
+        ControllablePlayerEntity player = Minecraft.getMinecraft().playerEntity;
 
         if (!switched) {
             switched = true;
-            timer.setCategory(END_FIGHT_CATEGORY, false);
+            timer.setCategory(EndFightCategory.END_FIGHT_CATEGORY, false);
         }
-        if (timer.getCategory() == END_FIGHT_CATEGORY) {
-            player.sendMessage(new LiteralText("Loaded End Fight Category w/ SpeedrunIGT"));
+        if (timer.getCategory() == EndFightCategory.END_FIGHT_CATEGORY) {
+            player.method_1262("Loaded End Fight Category w/ SpeedrunIGT");
         } else {
-            player.sendMessage(new LiteralText("Warning: End Fight Category disabled in SpeedrunIGT"));
+            player.method_1262("Warning: End Fight Category disabled in SpeedrunIGT");
         }
     }
 }
