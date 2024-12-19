@@ -5,14 +5,14 @@ fabric_loader = "0.15.7"
 loom = "1.6-SNAPSHOT"
 legacy-looming = "1.6-SNAPSHOT"
 vineflower = "1.10.0-SNAPSHOT"
-speedrunigt = "1.3.1-SNAPSHOT"
+speedrunigt = "00d3089"
 gson = "2.10.1"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_loader" }
 vineflower = { module = "org.vineflower:vineflower", version.ref = "vineflower" }
-speedrunigt = { module = "dev.tildejustin:speedrunigt", version.ref = "speedrunigt" }
+speedrunigt = { module = "com.github.redlime:speedrunigt", version.ref = "speedrunigt" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 [plugins]

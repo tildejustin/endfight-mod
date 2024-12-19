@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.*;
 
 @Mixin(InGameHud.class)
 public class BossBarMixin {
-    @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyVariable(method = "renderBossBar", at = @At("STORE"))
     private String addSpecificText(String text, @Local EnderDragonEntity dragon) {
         // get name, get health, get max health
